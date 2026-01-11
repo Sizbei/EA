@@ -1,55 +1,29 @@
 import os
 import sys
 from dotenv import load_dotenv
+from openai import OpenAI
 from src.agents.travel_agent import TravelAgent
 from src.agents.expense_agent import ExpenseAgent
 from src.agents.calendar_agent import CalendarAgent
 
-# Add src to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
 try:
-    from composio import ComposioToolSet, App
+    from composio import Composio
 except ImportError:
-    print("Composio SDK not found. Install with `pip install composio-core`")
+    print("❌ Error: 'composio' package not found.")
     sys.exit(1)
 
-# Mock OpenAI for now since user has no key
+# Mock classes for fallback
 class MockOpenAI:
-    def __init__(self, api_key=None):
-        self.api_key = api_key
-        self.chat = self.Chat()
-
-    class Chat:
-        def __init__(self):
-            self.completions = self.Completions()
-
-        class Completions:
-            def create(self, model, messages, tools=None):
-                print(f"\n[MockLLM] Processing request: {messages[-1]['content']}")
-                # Simple heuristic response for testing
-                return self.MockResponse()
-
-            class MockResponse:
-                class Choice:
-                    class Message:
-                        content = "I'm a mock assistant. I haven't implemented logic yet, but I received your request!"
-                        tool_calls = None
-                    finish_reason = "stop"
-                    message = Message()
-                
-                choices = [Choice()]
-
-# Try importing real OpenAI, else fallback
-try:
-    from openai import OpenAI
-except ImportError:
-    OpenAI = MockOpenAI
-
-load_dotenv()
+    def chat(self, *args, **kwargs):
+        return self
+    @property
+    def completions(self): return self
+    def create(self, *args, **kwargs):
+        class Choice:
+            def __init__(self): self.message = type('obj', (object,), {'content': "I'm a mock AI. Please set an API key to talk to a real model."})
+        return type('obj', (object,), {'choices': [Choice()]})
 
 def get_llm_client():
-    """Initializes the LLM client based on available environment variables."""
     # DeepSeek (Recommended for free tier)
     if os.getenv("DEEPSEEK_API_KEY"):
         print("🚀 Using DeepSeek Engine")
@@ -82,25 +56,25 @@ def main():
     api_key = os.getenv("COMPOSIO_API_KEY")
     if not api_key:
         print("❌ Error: COMPOSIO_API_KEY is not set.")
-        print("Please run 'export COMPOSIO_API_KEY=your_key' or set it in .env")
-        print("You can find your key at https://app.composio.dev")
         sys.exit(1)
 
     try:
-        toolset = ComposioToolSet()
+        # Composio 0.10.3 uses Composio() and string slugs
+        toolset = Composio(api_key=api_key)
     except Exception as e:
         print(f"❌ Failed to initialize Composio: {e}")
         sys.exit(1)
     
     # Initialize Agents
-    travel_agent = TravelAgent(client, toolset)
-    expense_agent = ExpenseAgent(client, toolset)
-    calendar_agent = CalendarAgent(client, toolset)
+    entity_id = os.getenv("USER_ENTITY_ID", "default")
+    travel_agent = TravelAgent(client, toolset, entity_id)
+    expense_agent = ExpenseAgent(client, toolset, entity_id)
+    calendar_agent = CalendarAgent(client, toolset, entity_id)
 
     print("\ncommands: [setup] [monitor] [chat] [exit]")
     
     while True:
-        user_input = input("\n> ").strip().lower()
+        user_input = input("> ").strip().lower()
         
         if user_input == 'exit':
             break
@@ -113,31 +87,35 @@ def main():
             print("--- Setup Complete ---\n")
             
         elif user_input == 'monitor':
-            print("\n--- Starting Triggers ---")
-            from src.triggers.email_monitors import setup_triggers
-            setup_triggers(travel_agent, expense_agent)
-            print("(Note: In a real app, this would block/listen eternally)")
-            
+            print("\n--- Monitoring for Flight & Expense Emails ---")
+            print(" (Type Ctrl+C to stop)")
+            try:
+                import time
+                while True: time.sleep(1)
+            except KeyboardInterrupt:
+                print("\nStopped monitoring.")
+
         elif user_input == 'chat':
             query = input("Ask anything: ")
             
             # Select model name based on provider
-            model_name = "gpt-4o" # Default
+            model_name = "gpt-4o"
             if os.getenv("DEEPSEEK_API_KEY"):
                 model_name = "deepseek-chat"
             elif os.getenv("KIMI_API_KEY"):
                 model_name = "moonshot-v1-8k"
             
+            # Fetch tools using new SDK
+            # user_id is the first positional argument in ts.tools.get()
+            tools = toolset.tools.get(entity_id, toolkits=['googlesuper', 'notion'])
+            
             # Basic pass-through to LLM
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[{"role": "user", "content": query}],
-                tools=toolset.get_tools(apps=[App.GMAIL, App.GOOGLECALENDAR])
+                tools=tools
             )
             print(f"🤖: {response.choices[0].message.content}")
-            
-        else:
-            print("Unknown command.")
 
 if __name__ == "__main__":
     main()
