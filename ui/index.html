@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Composio EA | Intelligence Center</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">✨</span>
+                <span class="logo-text">Composio EA</span>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-page="dashboard"><span class="icon">📊</span> Dashboard</li>
+                <li data-page="travel"><span class="icon">✈️</span> Travel</li>
+                <li data-page="expenses"><span class="icon">💰</span> Expenses</li>
+                <li data-page="tasks"><span class="icon">✅</span> Tasks</li>
+                <li data-page="settings"><span class="icon">⚙️</span> Settings</li>
+            </ul>
+            <div class="user-profile">
+                <div class="avatar">EB</div>
+                <div class="user-info">
+                    <span class="name">Executive User</span>
+                    <span class="status">Online</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <header class="top-bar">
+                <h1 id="page-title">Executive Dashboard</h1>
+                <div class="top-actions">
+                    <button id="sync-btn" class="secondary-btn"><span>🔄</span> Sync Data</button>
+                    <button id="new-task-btn" class="primary-btn"><span>+</span> New Request</button>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Flight Tracking Card -->
+                <div class="card glass travel-status">
+                    <div class="card-header">
+                        <h2>Upcoming Travel</h2>
+                        <span class="badge">2 Active</span>
+                    </div>
+                    <div class="flight-itinerary">
+                        <div class="flight-item">
+                            <div class="flight-route">
+                                <span class="code">SFO</span>
+                                <span class="connector">✈️</span>
+                                <span class="code">JFK</span>
+                            </div>
+                            <div class="flight-details">
+                                <p class="airline">Delta DL123 • May 20</p>
+                                <p class="status scheduled">On Time</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="card-action">View Full Itinerary</button>
+                </div>
+
+                <!-- Expense Quick View -->
+                <div class="card glass expense-summary">
+                    <div class="card-header">
+                        <h2>Monthly Expenses</h2>
+                        <span class="trend up">↑ 12%</span>
+                    </div>
+                    <div class="expense-chart-placeholder">
+                        <div class="total-amount">$4,280.50</div>
+                        <p class="subtitle">May 2026 Spending</p>
+                    </div>
+                    <div class="recent-receipts">
+                        <div class="receipt">
+                            <span class="vendor">Uber</span>
+                            <span class="amount">$24.50</span>
+                        </div>
+                        <div class="receipt">
+                            <span class="vendor">Marriott</span>
+                            <span class="amount">$1,250.00</span>
+                        </div>
+                    </div>
+                    <button class="card-action">Upload Receipt</button>
+                </div>
+
+                <!-- Housing Card -->
+                <div class="card glass housing-status">
+                    <div class="card-header">
+                        <h2>Accommodation</h2>
+                    </div>
+                    <div class="current-stay">
+                        <p class="property">Marriott Marquis NYC</p>
+                        <p class="dates">May 20 - May 25</p>
+                        <div class="hotel-info">
+                            <span>🔑 Room 1402</span>
+                            <span>📡 WiFi: Marriott_Guest</span>
+                        </div>
+                    </div>
+                    <button class="card-action">Check-in Instructions</button>
+                </div>
+
+                <!-- Task Center -->
+                <div class="card glass task-center">
+                    <div class="card-header">
+                        <h2>Pending Actions</h2>
+                    </div>
+                    <ul class="task-list">
+                        <li>
+                            <input type="checkbox" id="t1">
+                            <label for="t1">Approve Q2 Flight Budget</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="t2">
+                            <label for="t2">Reschedule Finance Sync</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="t3">
+                            <label for="t3">Scan Airbnb check-in details</label>
+                        </li>
+                    </ul>
+                    <button class="card-action">View Notion DB</button>
+                </div>
+            </div>
+
+            <!-- Intelligence Terminal -->
+            <section class="intelligence-terminal glass">
+                <div class="terminal-header">
+                    <h3>Intelligence Terminal</h3>
+                    <div class="status-indicator"><span class="pulse"></span> AI Engine Active</div>
+                </div>
+                <div id="terminal-output" class="terminal-body">
+                    <p class="log green">[SYSTEM] Composio EA Engine Initialized...</p>
+                    <p class="log">[SCAN] Searching Gmail for recent travel records...</p>
+                    <p class="log green">[FOUND] 1 flight confirmation from Delta Airlines.</p>
+                    <p class="log">[ACTION] Added Flight DL123 to Calendar and Tracker.</p>
+                </div>
+                <div class="terminal-input-wrapper">
+                    <input type="text" id="ai-command" placeholder="Ask your assistant anything...">
+                    <button id="send-command">↵</button>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
